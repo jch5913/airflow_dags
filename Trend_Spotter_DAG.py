@@ -30,7 +30,7 @@ with DAG(
     # Delete file from datalake with same key
     delete_file_task = S3DeleteObjectsOperator(
         task_id = 'delete_file_from_datalake',
-        bucket = 's3://trend-spotter-source/',
+        bucket = 's3://trend-spotter-datalake/',
         keys = f'raw/sales/{year}/{month}/{day}/sales_{curr_date}.csv',
         aws_conn_id = 'aws_default',
     )
