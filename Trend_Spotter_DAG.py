@@ -3,6 +3,15 @@ from airflow.providers.amazon.aws.sensors.s3 import S3KeySensor
 from airflow.providers.amazon.aws.operators.s3 import S3CopyObjectOperator, S3DeleteObjectsOperator
 from datetime import datetime
 
+
+curr_date = {{ macros.datetime.strptime(ds, '%Y-%m-%d').strftime('%Y-%m-%d) }}
+year = curr_date.strftime('%Y')
+month = curr_date.strftime('%m')
+day = curr_date.strftime('%d')
+
+firm_aws_conn = 'trendspotter_aws'
+
+
 with DAG(
     dag_id = 'trend_spotter_dag',
     start_date = datetime(2025, 8, 1),
@@ -11,17 +20,12 @@ with DAG(
     tags = ['S3', 'S3KeySensor', 'S3CopyObjectOperator', 'S3DeleteObjectsOperator'],
 ) as dag:
 
-    curr_date = {{ macros.datetime.strptime(ds, '%Y-%m-%d').strftime('%Y-%m-%d) }}
-    year = curr_date.strftime('%Y')
-    month = curr_date.strftime('%m')
-    day = curr_date.strftime('%d')
-
     # Check file in source bucket
     sense_file_task = S3KeySensor(
         task_id = 'sense_source_file',
         bucket_name = 's3://trend-spotter-source/',
         bucket_key = f'sales-extracts/sales_{curr_date}.csv',
-        aws_conn_id = 'aws_default',
+        aws_conn_id = firm_aws_conn,
         poke_interval = 60,
         timeout = 600,      # Check file every minute for 10 minutes
         soft_fail = False,
@@ -32,7 +36,7 @@ with DAG(
         task_id = 'delete_file_from_datalake',
         bucket = 's3://trend-spotter-datalake/',
         keys = f'raw/sales/{year}/{month}/{day}/sales_{curr_date}.csv',
-        aws_conn_id = 'aws_default',
+        aws_conn_id = firm_aws_conn,
     )
 
     # Copy file to datalake
@@ -42,7 +46,7 @@ with DAG(
         source_bucket_key = f'sales-extracts/sales_{curr_date}.csv',
         dest_bucket_name = 's3://trend-spotter-datalake/',
         dest_bucket_key = f'raw/sales/{year}/{month}/{day}/sales_{curr_date}.csv',
-        aws_conn_id = 'aws_default',
+        aws_conn_id = firm_aws_conn,
     )
 
     # Define task dependency

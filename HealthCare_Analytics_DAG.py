@@ -7,10 +7,13 @@ from airflow.utils.email import send_email
 import pandas as pd
 from datetime import datetime
 
+
 curr_date = {{ macros.datetime.strptime(ds, '%Y-%m-%d').strftime('%Y-%m-%d) }}
 year = curr_date.strftime('%Y')
 month = curr_date.strftime('%m')
 day = curr_date.strftime('%d')
+
+firm_aws_conn = 'healthcare_analytics_aws'
 
 
 def check_ehr_file():
@@ -70,7 +73,7 @@ with DAG(
         task_id = 'sense_source_file',
         bucket_name = 's3://healthcare-analytics-source/',
         bucket_key = f'ehr/ehr_{curr_date}.csv',
-        aws_conn_id = 'aws_default',
+        aws_conn_id = firm_aws_conn,
         poke_interval = 60,
         timeout = 600,      # Check file every minute for 10 minutes
         soft_fail = False,
@@ -81,7 +84,7 @@ with DAG(
         task_id = 'delete_file_from_staging',
         bucket = 's3://healthcare-analytics-datalake/',
         keys = f'staging/ehr/{year}/{month}/{day}/ehr_{curr_date}.csv',
-        aws_conn_id = 'aws_default',
+        aws_conn_id = firm_aws_conn,
     )
 
     # Copy file to staging
@@ -91,7 +94,7 @@ with DAG(
         source_bucket_key = f'staging/ehr_{curr_date}.csv',
         dest_bucket_name = 's3://healthcare-analytics-datalake/',
         dest_bucket_key = f'staging/ehr/{year}/{month}/{day}/ehr_{curr_date}.csv',
-        aws_conn_id = 'aws_default',
+        aws_conn_id = firm_aws_conn,
     )
 
     check_ehr_task = PythonOperator(
@@ -105,7 +108,7 @@ with DAG(
         task_id = 'delete_file_from_raw',
         bucket = 's3://healthcare-analytics-datalake/',
         keys = f'staging/ehr/{year}/{month}/{day}/ehr_{curr_date}.csv',
-        aws_conn_id = 'aws_default',
+        aws_conn_id = firm_aws_conn,
     )
 
     # Copy file to datalake
@@ -115,7 +118,7 @@ with DAG(
         source_bucket_key = f'staging/ehr/{year}/{month}/{day}/ehr_{curr_date}.csv',
         dest_bucket_name = 's3://healthcare-analytics-datalake/',
         dest_bucket_key = f'raw/ehr/{year}/{month}/{day}/ehr_{curr_date}.csv',
-        aws_conn_id = 'aws_default',
+        aws_conn_id = firm_aws_conn,
     )
 
     # Define task dependency

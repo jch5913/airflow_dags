@@ -3,6 +3,7 @@ from airflow.operators.trigger_dagrun import TriggerDagRunOperator
 from airflow.operators.python import PythonOperator
 from datetime import datetime
 
+
 with DAG(
     dag_id = 'master_dag',
     start_date = datetime(2025, 8, 1),

@@ -5,6 +5,15 @@ import json
 import os
 from datetime import datetime
 
+
+curr_date = {{ macros.datetime.strptime(ds, '%Y-%m-%d').strftime('%Y-%m-%d) }}
+year = curr_date.strftime('%Y')
+month = curr_date.strftime('%m')
+day = curr_date.strftime('%d')
+
+firm_aws_conn = 'globallogistics_aws'
+
+
 def upload_track_file(dc_id):
     """
     Upload file to S3
@@ -14,7 +23,7 @@ def upload_track_file(dc_id):
     bucket_name_target = 's3://globallogistics-datalake/',
     bucket_key_target = f'/raw/exports/{dc_id}/track_{dc_id}.csv',
 
-    s3_hook = S3Hook(aws_conn_id = 'aws_default')
+    s3_hook = S3Hook(aws_conn_id = firm_aws_conn)
 
     # Overwrite if the key exists, no need to remove key first
     s3_hook.load_file(key = bucket_key_target, bucket_name = bucket_name_target, filename = local_file, replace = True)

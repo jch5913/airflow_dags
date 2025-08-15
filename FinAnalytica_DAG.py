@@ -11,11 +11,14 @@ year = curr_date.strftime('%Y')
 month = curr_date.strftime('%m')
 day = curr_date.strftime('%d')
 
+firm_aws_conn = 'finanalytica_aws'
+
+
 def download_parse_source_file():
     """
     Download and parse source file, this runs only on first day of month
     """
-    s3_hook = S3Hook(aws_conn_id = 'aws_default')
+    s3_hook = S3Hook(aws_conn_id = firm_aws_conn)
 
     bucket_name_source = 's3://finanalytica-source/',
     bucket_key_source = f'historical-stocks/stocks_{year}_{month}.csv.gz',
@@ -48,7 +51,7 @@ def upload_daily_file():
     bucket_name_target = 's3://finanalytica-datalake/',
     bucket_key_target = f'/raw/stocks/{year}/{month}/{day}/stock_data_{curr_date}.csv',
 
-    s3_hook = S3Hook(aws_conn_id = 'aws_default')
+    s3_hook = S3Hook(aws_conn_id = firm_aws_conn)
 
     # Overwrite if the key exists, no need to remove key first
     s3_hook.load_file(key = bucket_key_target, bucket_name = bucket_name_target, filename = local_file, replace = True)

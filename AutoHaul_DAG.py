@@ -4,6 +4,7 @@ from airflow.providers.amazon.aws.operators.s3 import S3CreateObjectOperator
 from airflow.providers.amazon.aws.operators.glue import GlueJobOperator
 from datetime import datetime
 
+
 with DAG(
     dag_id = 'process_trip_data',
     schedule_interval = '@daily',
@@ -19,7 +20,7 @@ with DAG(
 
     download_from_sftp_task = SFTPOperator(
         task_id = 'download_trip_data',
-        ssh_conn_id = 'sftp_trip_data',     # This is the pre configured sftp connection in Airflow UI Admin->Connections
+        ssh_conn_id = 'autohaul_sftp',     # This is the pre configured sftp connection in Airflow UI Admin->Connections
         remote_filepath = f'extract/trip_data_{curr_date}.csv',
         local_filepath = f'extract/trip_data_{curr_date}.csv',
         operation = SFTPOperation.GET,
