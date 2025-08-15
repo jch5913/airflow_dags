@@ -21,7 +21,7 @@ def upload_track_file(dc_id):
     local_file = f'/exports/{dc_id}/track.csv'
 
     bucket_name_target = 's3://globallogistics-datalake/',
-    bucket_key_target = f'/raw/exports/{dc_id}/track_{dc_id}.csv',
+    bucket_key_target = f'raw/exports/{dc_id}/track_{dc_id}.csv',
 
     s3_hook = S3Hook(aws_conn_id = firm_aws_conn)
 
